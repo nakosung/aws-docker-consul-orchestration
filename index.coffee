@@ -1,7 +1,5 @@
 require 'colors'
 
-# INSTANCE_TYPE = 'm1.small'
-
 AWS = require 'aws-sdk'
 AWS.config.region = 'ap-northeast-1'
 
@@ -9,7 +7,6 @@ ec2 = new AWS.EC2()
 
 async = require 'async'
 _ = require 'lodash'
-
 
 prep = (next) ->
 	console.log '기존의 instance를 지우고 있습니다.'
@@ -35,13 +32,13 @@ walk = (require './walker')	ec2, launch
 recipes = (require 'cson').parseFileSync './recipes.cson'	
 
 main = (next) ->
-	console.log '새로운 test set을 구성합니다.'
-
 	walk _.pairs(recipes), next
 
-# find_role 'ssh_entry', console.log.bind(console)
-
-async.series [ prep, main ], (err) ->
-	console.log 'DONE!!'
+argv = (require 'minimist')(process.argv.slice(2))
+jobs = [main]
+if argv.c
+	jobs.unshift prep
+async.series jobs, (err) ->
+	console.log '종료!'.bold.green
 	if err
 		console.error err

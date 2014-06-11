@@ -20,7 +20,7 @@ module.exports = (ec2,launch) ->
 					opts = _.extend c[1].instance, role:c[0]				
 					launch opts, c[1].env, next
 				else
-					# console.log data
+					console.log "#{c[0]}을 발견했습니다.".bold.yellow
 					next null, Instances:data
 
 		wait_for_jobs = wait_for.map (c) ->
@@ -28,7 +28,7 @@ module.exports = (ec2,launch) ->
 				launch_role c, (err,data) ->
 					return next err if err
 
-					console.log "#{c[0]}를 기다리고 있습니다."
+					#console.log "#{c[0]}를 기다리고 있습니다."
 
 					resources = [data.Instances[0].InstanceId]
 					query = InstanceIds:resources
