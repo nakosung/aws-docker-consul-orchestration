@@ -23,17 +23,17 @@ cluster :
 				MaxCount : 3
 
 	backend:
-		depends:['terminal']
+		depends:['consul']
 		env:
-			CONSUL_LEADER_IP : '@role:terminal'
+			CONSUL_LEADER_IP : '@role:consul'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'backend.sh'
 
 	http:
-		depends:['terminal']
+		depends:['consul']
 		env:
-			CONSUL_LEADER_IP : '@role:terminal'			
+			CONSUL_LEADER_IP : '@role:consul'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'http.sh'
@@ -42,9 +42,9 @@ cluster :
 				SecurityGroups : ['default','http_frontend']
 
 	registry:
-		depends:['terminal']
+		depends:['consul']
 		env : 
-			CONSUL_LEADER_IP : '@role:terminal'						
+			CONSUL_LEADER_IP : '@role:consul'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'registry.sh'
