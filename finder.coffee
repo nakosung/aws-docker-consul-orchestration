@@ -6,7 +6,7 @@ module.exports = (ec2) ->
 		ec2.describeInstances {}, (err,data) ->
 			return next err if err 		
 			result = _.flatten data?.Reservations?.map (r) ->
-				instances = _.reject (r.Instances or []), (x) -> x.State.Name == 'terminated' or x.State.Name == 'shutting-down'
+				instances = _.reject (r.Instances or []), (x) -> not (x.State.Name == 'pending' or x.State.Name == 'running')
 				_.filter instances, (i) ->
 					_.any i.Tags, (t) -> 
 						t.Key == 'role' and t.Value == role

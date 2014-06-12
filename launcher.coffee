@@ -15,24 +15,41 @@ load = (base,file) ->
 	new Buffer(lines.join('\n'))
 
 preprocess = require './preprocess'
+hash = require './hash'
 
 module.exports = (ec2,default_instance) ->
 	replace = (require './replacer') ec2
 
-	launch = (opts,env,next) ->
-		{public_ip,role,script} = preprocess opts		
+	launch = (global,opts,env,next) ->
+		{cluster} = global
+		{public_ip,role,script,only_hash} = _opts = preprocess opts
 		
 		script = load 'scripts', script
 
 		replace script.toString(), env, (err,replaced) ->
+			return next err if err
 			userdata = new Buffer(replaced).toString('base64')
 
-			config = _.extend default_instance,
+			config = _.extend _.clone(default_instance),
 				UserData : userdata
 				MinCount : 1
 				MaxCount : 1
 
 			config = _.extend config, opts.instance or {}
+
+			sha1 = hash 
+				role:role
+				public_ip:public_ip
+				config:config
+
+			# if role == 'backend'
+			# 	console.log
+			# 		role:role
+			# 		public_ip:public_ip
+			# 		config:config
+
+			if only_hash
+				return next null, sha1
 			
 			ec2.runInstances config,		
 				(err,data) ->
@@ -60,7 +77,9 @@ module.exports = (ec2,default_instance) ->
 							ec2.createTags 
 								Resources:resources
 								Tags:[
-									Key:'role',Value:role
+									{Key:'role',Value:role}
+									{Key:'cluster',Value:cluster}
+									{Key:'sha1',Value:sha1}
 								]
 								next
 					], (err) ->

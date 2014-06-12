@@ -52,8 +52,8 @@ module.exports = (ec2) ->
 					if /^\@role:/.test v
 						[prefix,role] = v.split(':')
 						# console.log v, prefix, role, '<--'
-						v = role_cached[role]?[0].PrivateIpAddress									
-						return next 500 unless v?					
+						v = role_cached[role]?[0]?.PrivateIpAddress									
+						return next [500,"#{role}을 찾을 수 없습니다"] unless v?					
 
 					target = target.replace new RegExp(k,'g'), v
 				# console.log JSON.stringifytarget

@@ -1,48 +1,50 @@
-terminal:
-	env:
-		ID_RSA : '@file:.ssh/id_rsa'
-		ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-	instance:
-		script:'leader.sh'
-		public_ip:'@file:.elastic_ip/ssh'
+id : 'nakosung'
+cluster :
+	terminal:
+		env:
+			ID_RSA : '@file:.ssh/id_rsa'
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
-			SecurityGroups : ['default','ssh_entry']
-			KeyName : 'nakosung-mbp'		
+			script:'leader.sh'
+			public_ip:'@file:.elastic_ip/ssh'
+			instance:
+				SecurityGroups : ['default','ssh_entry']
+				KeyName : 'nakosung-mbp'		
 
-consul :
-	depends:['terminal']
-	env:
-		CONSUL_LEADER_IP : '@role:terminal'
-		ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-	instance:
-		script:'follower.sh'
+	consul :
+		depends:['terminal']
+		env:
+			CONSUL_LEADER_IP : '@role:terminal'
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
-			MinCount : 3
-			MaxCount : 3
+			script:'follower.sh'
+			instance:
+				MinCount : 3
+				MaxCount : 3
 
-backend:
-	depends:['terminal']
-	env:
-		CONSUL_LEADER_IP : '@role:terminal'
-		ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-	instance:
-		script:'backend.sh'
-
-http:
-	depends:['terminal']
-	env:
-		CONSUL_LEADER_IP : '@role:terminal'			
-		ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-	instance:
-		script:'http.sh'
-		public_ip:'@file:.elastic_ip/http'
+	backend:
+		depends:['terminal']
+		env:
+			CONSUL_LEADER_IP : '@role:terminal'
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
-			SecurityGroups : ['default','http_frontend']
+			script:'backend.sh'
 
-registry:
-	depends:['terminal']
-	env : 
-		CONSUL_LEADER_IP : '@role:terminal'						
-		ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-	instance:
-		script:'registry.sh'
+	http:
+		depends:['terminal']
+		env:
+			CONSUL_LEADER_IP : '@role:terminal'			
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
+		instance:
+			script:'http.sh'
+			public_ip:'@file:.elastic_ip/http'
+			instance:
+				SecurityGroups : ['default','http_frontend']
+
+	registry:
+		depends:['terminal']
+		env : 
+			CONSUL_LEADER_IP : '@role:terminal'						
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
+		instance:
+			script:'registry.sh'
