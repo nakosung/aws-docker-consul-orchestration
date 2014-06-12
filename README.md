@@ -10,6 +10,7 @@ aws-docker-consul-orchestration
 Roadmap
 -------
  * docker+consul-service 등 instance 내부 setup의 incremental한 관리 추가
+  * cluster간 meta-communication은 consul k/v를 활용할 수 있다.
 
 Setup
 -----
