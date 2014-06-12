@@ -66,6 +66,13 @@ cleanup = (next) ->
 							ec2.terminateInstances InstanceIds:query, next
 						else
 							next()
+			
+			abandoned = _.reject instances, (i) -> recipes[i.Tag.role]?
+			if abandoned.length
+				console.log "#{abandoned.length}개의 버려진 인스턴스를 종료합니다.".red.bold
+				jobs.push (next) ->
+					query = _.pluck abandoned, 'InstanceId'
+					ec2.terminateInstances InstanceIds:query, next
 
 			async.parallel jobs, next
 	], next
