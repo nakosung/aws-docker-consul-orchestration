@@ -10,3 +10,9 @@ aws-docker-consul-orchestration
 Roadmap
 -------
  * docker+consul-service 등 instance 내부 setup의 incremental한 관리 추가
+
+Setup
+-----
+ * ~/.aws/credentials
+ * mkdir .ssh && ssh-keygen -f .ssh/id_rsa -P ''
+ 
