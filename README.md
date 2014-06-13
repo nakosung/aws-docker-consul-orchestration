@@ -20,8 +20,13 @@ Roadmap
 
 Setup
 -----
- * ~/.aws/credentials
- * mkdir .ssh && ssh-keygen -f .ssh/id_rsa -P ''
+```
+# prepare aws credential
+~/.aws/credentials
+
+# prepare ssh credential (for inter-connections and git operations)
+mkdir .ssh && ssh-keygen -f .ssh/id_rsa -P ''
+```
  
 
 Notes
