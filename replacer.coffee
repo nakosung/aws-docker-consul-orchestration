@@ -7,11 +7,12 @@ preprocess = require './preprocess'
 module.exports = (ec2) ->
 	find_role = (require './finder') ec2
 
-	role_cached = {}
-	role_cached.E = new events.EventEmitter()
 
 	next_id = 0
 	replace = (target,dict,next) ->
+		role_cached = {}
+		role_cached.E = new events.EventEmitter()
+		
 		id = next_id++
 		# console.log 'replacing', dict, id
 		async.series [
@@ -31,7 +32,7 @@ module.exports = (ec2) ->
 								next()					
 					else
 						role_cached[role] = 'pending'
-						# console.log 'begin to fetch'
+						# console.log 'begin to fetch', role
 						(next) ->
 							# console.log 'find_role!', id
 							find_role role, (err,instances) ->

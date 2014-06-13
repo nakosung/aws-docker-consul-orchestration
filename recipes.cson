@@ -31,7 +31,7 @@ cluster :
 			script:'backend.sh'
 
 	http:
-		depends:['consul']
+		depends:['consul','registry']
 		env:
 			CONSUL_LEADER_IP : '@role:consul'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
