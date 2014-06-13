@@ -10,6 +10,7 @@ aws-docker-consul-orchestration
 * consul web-ui
 ```
 ssh -L 8500:127.0.0.1:8500 
+open http://localhost:8500
 ```
 
 Roadmap
@@ -25,6 +26,11 @@ Setup
 
 Notes
 -----
- * docker tag [app-repo] $(dig +short docker.service.consul)/[app-name]
- * docker push $(dig +short docker.service.consul)/[app-name]
- * docker run -d --net=host $(dig +short docker.service.consul)/[app-name]
+```
+# push docker image to private registry
+docker tag [app-repo] $(dig +short docker.service.consul)/[app-name]
+docker push $(dig +short docker.service.consul)/[app-name]
+
+# run docker image from private registry
+docker run -d --net=host $(dig +short docker.service.consul)/[app-name]
+```
