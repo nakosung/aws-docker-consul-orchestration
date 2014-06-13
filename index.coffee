@@ -31,7 +31,7 @@ prep = (next) ->
 			next()
 
 launch = (require './launcher') ec2,
-	InstanceType : 't1.micro'
+	InstanceType : 'm1.small'
 	ImageId : 'ami-bddaa2bc'
 	SecurityGroups : ['default']
 
