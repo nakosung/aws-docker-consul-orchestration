@@ -2,7 +2,7 @@ id : 'nakosung'
 cluster :
 	terminal:
 		env:
-			ID_RSA : '@file:.ssh/id_rsa'
+			ID_RSA_PRIV : '@file:.ssh/id_rsa'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'leader.sh'
@@ -30,6 +30,17 @@ cluster :
 		instance:
 			script:'backend.sh'
 
+	registry:
+		depends:['consul']
+		env : 
+			CONSUL_LEADER_IP : '@role:consul'
+			ID_RSA_PRIV : '@file:.ssh/id_rsa'			
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
+		instance:
+			script:'registry.sh'
+			instance:
+				InstanceType : 'm3.large'
+
 	http:
 		depends:['consul','registry']
 		env:
@@ -42,13 +53,3 @@ cluster :
 				InstanceType : 'm3.large'
 				SecurityGroups : ['default','http_frontend']
 
-	registry:
-		depends:['consul']
-		env : 
-			CONSUL_LEADER_IP : '@role:consul'
-			ID_RSA : '@file:.ssh/id_rsa'			
-			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
-		instance:
-			script:'registry.sh'
-			instance:
-				InstanceType : 'm3.large'

@@ -57,6 +57,8 @@ module.exports = (ec2,default_instance) ->
 
 					console.log "#{role} 설정 완료".bold.green
 
+					# console.log JSON.stringify data
+
 					resources = _.pluck data.Instances, 'InstanceId'
 
 					async.parallel [

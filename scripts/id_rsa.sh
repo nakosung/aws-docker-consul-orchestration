@@ -3,7 +3,7 @@ USER=ubuntu
 sudo mkdir -p /home/$USER/.ssh
 
 cat > id_rsa << EOF_ID
-ID_RSA
+ID_RSA_PRIV
 EOF_ID
 
 sudo mv id_rsa /home/$USER/.ssh/id_rsa
