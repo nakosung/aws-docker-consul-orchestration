@@ -39,12 +39,16 @@ cluster :
 			script:'http.sh'
 			public_ip:'@file:.elastic_ip/http'
 			instance:
+				InstanceType : 'm3.large'
 				SecurityGroups : ['default','http_frontend']
 
 	registry:
 		depends:['consul']
 		env : 
 			CONSUL_LEADER_IP : '@role:consul'
+			ID_RSA : '@file:.ssh/id_rsa'			
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'registry.sh'
+			instance:
+				InstanceType : 'm3.large'
