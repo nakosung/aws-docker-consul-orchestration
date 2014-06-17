@@ -29,6 +29,8 @@ cluster :
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
 		instance:
 			script:'backend.sh'
+			instance:
+				InstanceType : 'm3.large'
 
 	registry:
 		depends:['consul']

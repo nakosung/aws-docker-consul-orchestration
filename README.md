@@ -33,9 +33,9 @@ Notes
 -----
 ```
 # push docker image to private registry
-docker tag [app-repo] $(dig +short docker.service.consul)/[app-name]
-docker push $(dig +short docker.service.consul)/[app-name]
+docker tag [app-repo] $(dig +short registry.service.consul)/[app-name]
+docker push $(dig +short registry.service.consul)/[app-name]
 
 # run docker image from private registry
-docker run -d --net=host $(dig +short docker.service.consul)/[app-name]
+docker run -d --net=host $(dig +short registry.service.consul)/[app-name]
 ```

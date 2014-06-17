@@ -3,20 +3,29 @@
 mkdir -p /home/ubuntu
 cd /home/ubuntu
 
-cat > lookup.sh << 'END_LOOKUP_SH'
-echo tcp://$(dig @localhost -p 8600 +short $1.service.consul):$(dig @localhost -p 8600 +short $1.service.consul SRV | awk '{print $3}')
-sudo killall -s 1 consul
-END_LOOKUP_SH
-chmod +x lookup.sh
+sudo rm run_aliased.sh
+cat > run_aliased.sh << 'END_RUN_ALIASED_SH'
+echo $EVERYAUTH
+sudo docker rm -f $1
+sudo docker pull $(dig @localhost -p 8600 +short registry.service.consul)/$2
+sudo docker run \
+    -e REDIS_PORT=$(lookup.sh redis) \
+    -e ZK_PORT=$(lookup.sh zookeeper) \
+    -e MONGO_PORT=$(lookup.sh mongo) \
+    -e REGISTRY_PORT=$(lookup.sh registry) \
+    ${@:3} \
+    --net=host \
+    --name=$1 \
+    -d $(dig @localhost -p 8600 +short registry.service.consul)/$2
+END_RUN_ALIASED_SH
+sudo chmod +x run_aliased.sh
+sudo mv run_aliased.sh /usr/local/bin
 
+sudo rm run.sh
 cat > run.sh << 'END_RUN_SH'
-sudo docker run -e REDIS_PORT=$(./lookup.sh redis) -e ZK_PORT=$(./lookup.sh zookeeper) -e MONGO_PORT=$(./lookup.sh mongo) --net=host -d $(dig @localhost -p 8600 +short docker.service.consul)/$1
+run_aliased.sh $1 ${@:1}
 END_RUN_SH
-chmod +x run.sh
+sudo chmod +x run.sh
+sudo mv run.sh /usr/local/bin
 
-cat > expose.sh << 'END_EXPOSE_SH'
-echo '{"service":{"name":"'$1'","port":'$2',"check":{"script":"nc -z localhost '$2'","interval":"10s"}}}' | sudo tee -a /etc/consul.d/$1.json
-sudo killall -s 1 consul
-END_EXPOSE_SH
-chmod +x expose.sh
 
