@@ -6,9 +6,11 @@ unzip -o *
 chmod +x consul
 sudo cp consul /usr/local/bin
 
+mkdir /etc/consul.d
+
 cd /tmp
 cat > expose.sh << 'END_EXPOSE_SH'
-echo '{"service":{"name":"'$1'","port":'$2',"check":{"script":"nc -z localhost '$2'","interval":"10s"}}}' | sudo tee -a /etc/consul.d/$1.json
+echo '{"service":{"name":"'$1'","port":'$2',"check":{"script":"nc -z localhost '$2'","interval":"10s"}}}' | sudo tee /etc/consul.d/$1.json
 sudo killall -s 1 consul
 END_EXPOSE_SH
 chmod +x expose.sh

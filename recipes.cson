@@ -4,6 +4,7 @@ cluster :
 		env:
 			ID_RSA_PRIV : '@file:.ssh/id_rsa'
 			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
+			EVERYAUTH_GITHUB : '@file:.keys/github'
 		instance:
 			script:'leader.sh'
 			public_ip:'@file:.elastic_ip/ssh'

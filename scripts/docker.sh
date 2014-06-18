@@ -1,5 +1,3 @@
-mkdir -p /etc/consul.d
-
 expose.sh docker 4243
 
 # install docker.io
