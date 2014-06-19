@@ -30,22 +30,24 @@ sudo chmod +x run.sh
 sudo mv run.sh /usr/local/bin
 
 
-sudo apt-get install -y jq
+
+
 
 cat > poll_run.sh << 'POLL_RUN_END'
 
+Type=$1
 DOCKER_URL=http://localhost:4243
 KV_URL=http://localhost:8500/v1/kv
-RunTargets=$(curl -s $KV_URL/$(hostname)/run?recurse)
+RunTargets=$(curl -s $KV_URL/$(hostname)/$Type/?recurse)
 test -z $RunTargets && exit -1
 
 Target=$(echo $RunTargets | jq ".[0]")
 
 Key=$(echo $Target | jq -r ".Key")
-Value=$(echo $Target | jq -r ".Value" | base64 -d)
+RawValue=$(echo $Target | jq -r ".Value")
+Value=$(echo $RawValue | base64 -d)
 arr=( $(echo $Key | tr "/" "\n") )
 RunName=${arr[2]}
-
 
 RunImage=$(echo $Value | jq -r ".image")
 RunArgs=$(echo $Value | jq -r ".args")
@@ -55,11 +57,20 @@ test $RunArgs = null && RunArgs=''
 echo "run_aliased.sh $RunName $RunImage $RunArgs"
 bash -c "run_aliased.sh $RunName $RunImage $RunArgs"
 
-test $(sudo docker inspect $RunName 2>/dev/null | jq ". | length") -eq 0 && echo "$RunName failed" && exit -2
+function toss {
+	curl -s -X DELETE $KV_URL/$Key
+	echo $RawValue | base64 -d | curl -s -X PUT $KV_URL/${arr[0]}/$1/$RunName -d @-
+}
 
-echo "$RunName launched"
+test $(sudo docker inspect $RunName 2>/dev/null | jq ". | length") -eq 0 && echo "$RunName failed" && toss failed && exit -2
 
-curl -s -X DELETE $KV_URL/$Key
+sudo docker inspect $RunName | jq -r '.[].Config.ExposedPorts | to_entries | [ .[] | .key | rtrimstr("/tcp") | "expose.sh '$RunName'-\(.) \(.)" ] | join("\n")' | sh
+
+Container=$(docker ps -lq)
+echo "$RunName($RunImage) launched $Container"
+
+toss running
+
 curl -s $DOCKER_URL/containers/json | curl -s -X PUT $KV_URL/$(hostname)/docker/containers -d @-
 
 exit 0
@@ -68,38 +79,47 @@ POLL_RUN_END
 chmod +x poll_run.sh
 
 
+cat > poll_kill.sh << 'POLL_KILL_END'
 
-
-
-cat > poll_expose.sh << 'EXPOSE_RUN_END'
-
+Type=$1
 DOCKER_URL=http://localhost:4243
 KV_URL=http://localhost:8500/v1/kv
-RunTargets=$(curl -s $KV_URL/$(hostname)/expose?recurse)
+RunTargets=$(curl -s $KV_URL/$(hostname)/$Type/?recurse)
 test -z $RunTargets && exit -1
 
 Target=$(echo $RunTargets | jq ".[0]")
 
 Key=$(echo $Target | jq -r ".Key")
-Value=$(echo $Target | jq -r ".Value" | base64 -d)
+RawValue=$(echo $Target | jq -r ".Value")
+Value=$(echo $RawValue | base64 -d)
 arr=( $(echo $Key | tr "/" "\n") )
 RunName=${arr[2]}
 
-curl -X DELETE $KV_URL/$Key
+RunImage=$(echo $Value | jq -r ".image")
+RunArgs=$(echo $Value | jq -r ".args")
+test $RunImage = null && RunImage=$RunName
+test $RunArgs = null && RunArgs=''
 
-RunPort=$(echo $Value | jq -r ".port")
+sudo docker kill $RunName
+curl -s -X DELETE $KV_URL/$Key
 
-expose.sh $RunName $RunPort
+curl -s $DOCKER_URL/containers/json | curl -s -X PUT $KV_URL/$(hostname)/docker/containers -d @-
 
 exit 0
-EXPOSE_RUN_END
+POLL_KILL_END
 
-chmod +x poll_expose.sh
+chmod +x poll_kill.sh
 
+cat > restart_containers.sh << 'RESTART_CONTAINERS_END'
+docker ps -a | grep "Exit" | grep -v "(0)" | awk '{print $1}' | xargs -r docker restart
+RESTART_CONTAINERS_END
+
+chmod +x restart_containers.sh
 
 cat > loop.sh << LOOP_END
 while [[ true ]]; do
-	./poll_expose.sh || ./poll_run.sh || sleep 5
+	./poll_kill.sh kill || ./poll_run.sh run || sleep 5 && ./poll_run.sh failed
+    ./restart_containers.sh
 done
 LOOP_END
 chmod +x loop.sh

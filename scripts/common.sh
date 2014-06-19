@@ -1,4 +1,9 @@
-sudo apt-get install -y unzip
+apt-get update -y
+apt-get install -y jq
+wget http://stedolan.github.io/jq/download/linux64/jq
+chmod +x jq
+mv jq /usr/bin/jq
+apt-get install -y unzip
 mkdir /tmp/consul
 cd /tmp/consul
 curl -OL https://dl.bintray.com/mitchellh/consul/0.2.1_linux_amd64.zip

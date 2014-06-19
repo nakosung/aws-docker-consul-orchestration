@@ -24,9 +24,6 @@ UPDATE_SH_END
 chmod +x update.sh
 
 
-sudo apt-get install -y jq
-
-
 
 
 
@@ -61,14 +58,14 @@ chmod +x poll_update.sh
 
 
 mkdir -p /home/ubuntu
-echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~ubuntu/.ssh/config
-echo -e "Host bitbucket.com\n\tStrictHostKeyChecking no\n" >> ~ubuntu/.ssh/config
 
 # ------------ CLIENT(cdn)
 cat > client.sh << 'CLIENT_UPDATE_SH_END'
 HOME=~ubuntu
 echo "updating client $1"
-( (cd $1 && git pull) || (git clone ssh://git@bitbucket.com/redduck/$1 && cd $1 && git remote add cdn $(lookup.sh git | sed -e 's/tcp/http/')/$1) ) && (cd $1 && git push cdn master)
+GIT=$(lookup.sh cdn-7002)
+test -z $GIT && exit -1
+( (cd $1 && git pull) || (git clone ssh://git@bitbucket.com/redduck/$1 && cd $1 && git remote add cdn $(echo $GIT | sed -e 's/tcp/http/')/$1) ) && (cd $1 && git push cdn master) && exit 0
 CLIENT_UPDATE_SH_END
 chmod +x client.sh
 

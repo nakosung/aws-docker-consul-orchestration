@@ -52,7 +52,7 @@ cluster :
 		instance:
 			script:'http.sh'
 			public_ip:'@file:.elastic_ip/http'
-			instance:
+			instance:				
 				InstanceType : 'm3.large'
 				SecurityGroups : ['default','http_frontend']
 

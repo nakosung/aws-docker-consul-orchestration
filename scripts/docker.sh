@@ -9,7 +9,10 @@ sudo service docker restart
 
 cd /tmp
 cat > lookup.sh << 'END_LOOKUP_SH'
-echo tcp://$(dig @localhost -p 8600 +short $1.service.consul):$(dig @localhost -p 8600 +short $1.service.consul SRV | awk '{print $3}')
+IP=$(dig @localhost -p 8600 +short $1.service.consul)
+test -z $IP && exit -1
+PORT=$(dig @localhost -p 8600 +short $1.service.consul SRV | awk '{print $3}')
+echo tcp://$IP:$PORT
 END_LOOKUP_SH
 
 chmod +x lookup.sh

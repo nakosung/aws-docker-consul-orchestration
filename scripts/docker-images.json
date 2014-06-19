@@ -1,0 +1,21 @@
+{
+	"db" : {},
+	"devices" : {},
+	"eventbus" : {},
+	"gateway " : {},
+	"nginx " : {},
+	"router " : {},
+	"user" : {},
+	"server " : {},
+	"cdn" : {},
+	"url_feedback" : {},
+	"gift" : {},
+	"mailbox" : {},
+	"receipt" : {},
+	"email" : {},
+	"server_saga" : {},
+	"bank" : {},
+	"server_heart" : {},
+	"zko" : {},
+	"remotelog" : {}
+}

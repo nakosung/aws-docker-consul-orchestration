@@ -3,5 +3,4 @@ node_modules/
 .elastic_ip/
 .ssh/
 .keys/
-scripts/private.sh
 *.swp
