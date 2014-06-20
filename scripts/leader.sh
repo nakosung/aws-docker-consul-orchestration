@@ -10,6 +10,9 @@ curl -OL https://dl.bintray.com/mitchellh/consul/0.2.1_web_ui.zip
 unzip -o *
 
 sudo sh -c "nohup consul agent -server -bootstrap -data-dir=/tmp/consul -config-dir=/etc/consul.d -ui-dir=/tmp/consul_ui/dist> /var/log/consul.log 2>&1 &"
+while [[ true ]]; do
+    sudo cat /var/log/consul.log | grep 'Consul agent running!' && break    
+done
 
 #include dns.sh
 

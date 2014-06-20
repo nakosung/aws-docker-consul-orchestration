@@ -54,6 +54,9 @@ RunArgs=$(echo $Value | jq -r ".args")
 test $RunImage = null && RunImage=$RunName
 test $RunArgs = null && RunArgs=''
 
+# Some magic keywords
+RunArgs=$(echo '' $RunArgs | sed s/LOCAL_IP_ADDRESS/$(hostname -i)/g)
+
 echo "run_aliased.sh $RunName $RunImage $RunArgs"
 bash -c "run_aliased.sh $RunName $RunImage $RunArgs"
 

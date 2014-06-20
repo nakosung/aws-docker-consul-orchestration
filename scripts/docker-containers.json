@@ -3,13 +3,15 @@
 	"eventbus":{},
 	"authdb": {
 		"image":"db",
-		"args":"-e MONGO_SETNAME=auth -e MY_MONGO_ADDR=$(hostname -i):27017 -v /mnt/authdb/data:/data"
+		"args":"-e MONGO_SETNAME=auth -e MY_MONGO_ADDR=LOCAL_IP_ADDRESS:27017 -v /mnt/authdb/data:/data"
 	},
 	"gamedb": {
 		"image":"db",
 		"args":"-e MY_MONGO_ADDR=$(hostname -i):27018 -v /mnt/gamedb/data:/data"
 	},
-	"cdn":{},
+	"cdn":{
+		"args":"-v /mnt/cdn-git:/tmp"
+		},
 	"zko":{},
 	"user":{},
 	"devices":{},
