@@ -23,7 +23,7 @@ module.exports = (ec2) ->
 				_.filter instances, (i) -> 
 					unless i.Tag.role?
 						console.log 'no tag here', i					
-					i.Tag.role == role
+					i.Tag.role == role and i.Tag.cluster == ec2.CLUSTER_ID
 					
 			return next 404 if result.length == 0
 			next null, result
