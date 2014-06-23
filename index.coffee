@@ -9,6 +9,8 @@ recipes = (require 'cson').parseFileSync './recipes.cson'
 CLUSTER_ID = recipes.id
 recipes = recipes.cluster
 
+ec2.CLUSTER_ID = CLUSTER_ID
+
 async = require 'async'
 _ = require 'lodash'
 
@@ -19,7 +21,7 @@ prep = (next) ->
 		return next err if err
 		cands = _.flatten data.Reservations.map (d) -> d.Instances		
 		cands = _.reject cands, (x) -> 
-			return true unless _.any x.Tags, (t) -> t.Key == 'cluster' and t.Value == CLUSTER_ID
+			return true unless _.any x.Tags, (t) -> t.Key == 'cluster' and t.Value == ec2.CLUSTER_ID
 			x.State.Name == 'terminated'
 		instances = _.pluck cands, 'InstanceId'
 
@@ -52,6 +54,7 @@ cleanup = (next) ->
 				i.Tags.map (t) ->
 					i.Tag[t.Key] = t.Value
 				i
+			instances = _.filter instances, (i) -> i.Tag.cluster == ec2.CLUSTER_ID
 			jobs = _.pairs(recipes).map (c) ->
 				(next) ->
 					opts = _.extend role:c[0], c[1].instance
@@ -59,7 +62,7 @@ cleanup = (next) ->
 					launch cluster:CLUSTER_ID, _.extend(opts,only_hash:true), c[1].env, (err,sha1) ->
 						old_instances = _.filter instances, (i) -> 
 							# console.log i, '<--'
-							i.Tag.cluster == CLUSTER_ID and i.Tag.role == c[0] and i.Tag.sha1 != sha1
+							i.Tag.role == c[0] and i.Tag.sha1 != sha1
 						if old_instances.length
 							console.log "#{old_instances.length}개의 구 인스턴스!", c[0], sha1, old_instances[0].Tag.sha1
 							query = _.pluck old_instances, 'InstanceId'
