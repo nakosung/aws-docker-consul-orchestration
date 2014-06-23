@@ -1,0 +1,1 @@
+docker ps -a | grep "Exit" | grep -v "(0)" | awk '{print $1}' | xargs -r docker restart

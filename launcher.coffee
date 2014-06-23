@@ -3,14 +3,24 @@ _ = require 'lodash'
 fs = require 'fs'
 path = require 'path'
 
+embed_id = 0
+
 load = (base,file) ->
 	file = fs.readFileSync path.join(base,file)
 	lines = file.toString().split('\n')	
 	lines = lines.map (line) ->
-		if /^#include/.test line
-			(load base, line.split(' ')[1]).toString()
-		else
-			line
+		while /^#include/.test line
+			line = (load base, line.split(' ')[1]).toString()
+		while /^#embed/.test line
+			[command,target,file,chmod] = line.split(' ')
+			line = (load base, file).toString()
+			id = embed_id++
+			heredoc = "EMBED_HEREDOC_MARKER_#{id}"
+			lines = ["cat > #{target} << '#{heredoc}'",line,heredoc]
+			if chmod?
+				lines.push "chmod #{chmod} #{target}"
+			line = lines.join '\n'
+		line
 	# console.log lines
 	new Buffer(lines.join('\n'))
 

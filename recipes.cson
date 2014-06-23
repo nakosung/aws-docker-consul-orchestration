@@ -38,7 +38,10 @@ cluster :
 		env : 
 			CONSUL_LEADER_IP : '@role:consul'
 			ID_RSA_PRIV : '@file:.ssh/id_rsa'			
-			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'
+			ID_RSA_PUB : '@file:.ssh/id_rsa.pub'			
+			DOCKER_REGISTRY_S3_BUCKET : 'redmobile-docker'
+			DOCKER_REGISTRY_S3_ACCESS_KEY : '@file:.keys/s3-access-key'
+			DOCKER_REGISTRY_S3_SECRET_KEY : '@file:.keys/s3-secret-key'
 		instance:
 			script:'registry.sh'
 			instance:

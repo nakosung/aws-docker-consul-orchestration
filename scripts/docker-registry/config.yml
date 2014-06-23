@@ -1,0 +1,13 @@
+common:
+        loglevel: debug
+
+        boto_bucket: DOCKER_REGISTRY_S3_BUCKET
+        s3_access_key: DOCKER_REGISTRY_S3_ACCESS_KEY
+        s3_secret_key: DOCKER_REGISTRY_S3_SECRET_KEY
+        s3_bucket: DOCKER_REGISTRY_S3_BUCKET
+        s3_encrypt: true
+        s3_secure: true
+
+prod:
+        storage: s3
+        storage_path: /prod

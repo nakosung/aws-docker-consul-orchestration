@@ -8,12 +8,22 @@ echo 'DOCKER_OPTS="-H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock"' | sudo
 sudo service docker restart
 
 cd /tmp
+cat > lookup_host.sh << 'END_LOOKUP_HOST_SH'
+dig @localhost -p 8600 +short $1.service.consul
+END_LOOKUP_HOST_SH
+cat > lookup_port.sh << 'END_LOOKUP_PORT_SH'
+dig @localhost -p 8600 +short $1.service.consul SRV | awk '{print $3}'
+END_LOOKUP_PORT_SH
 cat > lookup.sh << 'END_LOOKUP_SH'
-IP=$(dig @localhost -p 8600 +short $1.service.consul)
+IP=$(lookup_host.sh $1)
 test -z $IP && exit -1
-PORT=$(dig @localhost -p 8600 +short $1.service.consul SRV | awk '{print $3}')
+PORT=$(lookup_port.sh $1)
 echo tcp://$IP:$PORT
 END_LOOKUP_SH
 
+chmod +x lookup_host.sh
+sudo mv lookup_host.sh /usr/local/bin
+chmod +x lookup_port.sh
+sudo mv lookup_port.sh /usr/local/bin
 chmod +x lookup.sh
 sudo mv lookup.sh /usr/local/bin
